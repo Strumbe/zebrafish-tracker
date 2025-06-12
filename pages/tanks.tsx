@@ -73,6 +73,14 @@ export default function TanksPage() {
   };
 
   const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Delete this tank and all related notes and logs?"
+    );
+    if (!confirmed) return;
+
+    await supabase.from("tank_notes").delete().eq("tank_id", id);
+    await supabase.from("tank_logs").delete().eq("tank_id", id);
+    await supabase.from("tank_archive").delete().eq("tank_id", id);
     await supabase.from("tanks").delete().eq("id", id);
     fetchTanks();
   };
