@@ -111,6 +111,7 @@ export default function TankDetailPage() {
     await supabase.from("tank_archive").insert([
       {
         tank_id: tank.id,
+        tank_label: tank.tank_id,
         strain_id: tank.strain_id,
         total_fish: tank.total_fish,
         larval_count: tank.larval_count,
