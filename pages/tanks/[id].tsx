@@ -121,6 +121,10 @@ export default function TankDetailPage() {
       },
     ]);
 
+    // remove existing notes and logs so tank starts fresh
+    await supabase.from("tank_notes").delete().eq("tank_id", tank.id);
+    await supabase.from("tank_logs").delete().eq("tank_id", tank.id);
+
     await supabase
       .from("tanks")
       .update({
