@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [userCount] = useState(4); // static
   const [tankGrid, setTankGrid] = useState([]);
   const [expanded, setExpanded] = useState<string[]>([]);
+  const [strainTankStats, setStrainTankStats] = useState<{name: string; count: number;}[]>([]);
 
   useEffect(() => {
     // Load stats
@@ -36,12 +37,24 @@ export default function Dashboard() {
     // Load grid & set expanded racks
     supabase
       .from("tanks")
-      .select("id, tank_id, active, total_fish, strains(name, strain_id_number)")
+      .select("id, tank_id, active, total_fish, strain_id, strains(name, strain_id_number)")
       .then(({ data }) => {
         const grid = data || [];
         setTankGrid(grid);
         const activeRacks = new Set(grid.filter(t => t.active).map(t => t.tank_id.split("-")[0]));
         setExpanded(Array.from(activeRacks));
+
+        const counts: Record<string, number> = {};
+        grid.forEach(t => {
+          if (t.active && t.strain_id) {
+            const name = t.strains?.name || "Unknown";
+            counts[name] = (counts[name] || 0) + 1;
+          }
+        });
+        const stats = Object.entries(counts)
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count);
+        setStrainTankStats(stats);
       });
   }, []);
 
@@ -129,6 +142,21 @@ export default function Dashboard() {
       <div className="text-center text-xl font-medium text-gray-800 mb-6">
         🐠 Active Tanks: <span className="font-bold">{tankCount}</span>
       </div>
+
+      {/* Tanks by Strain */}
+      {strainTankStats.length > 0 && (
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow mb-6 p-4">
+          <h2 className="text-lg font-semibold mb-3">Tanks by Strain</h2>
+          <ul className="space-y-1 text-sm">
+            {strainTankStats.map((s) => (
+              <li key={s.name} className="flex justify-between">
+                <span>{s.name}</span>
+                <span className="font-bold">{s.count}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Rack Schematic */}
       <div className="max-w-6xl mx-auto space-y-6">
