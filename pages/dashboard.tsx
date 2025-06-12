@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
+import NavBar from "../components/NavBar";
 import {
   Fish,
   BookOpen,
@@ -61,11 +62,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-blue-50 px-6 py-8">
-
-            {/* ← THIS MUST BE INSIDE THE RETURN */}
-            <div className="bg-red-500 text-white p-4 mb-4">
-        🚩 If you see this red box, Tailwind is loading correctly!
-      </div>
+      <NavBar />
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900">🐟 Zebrafish Tracker</h1>
