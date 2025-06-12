@@ -1,5 +1,13 @@
 // pages/dashboard.tsx
 import { useEffect, useState } from "react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
 import {
@@ -23,6 +31,7 @@ export default function Dashboard() {
   const [userCount] = useState(4); // static
   const [tankGrid, setTankGrid] = useState([]);
   const [expanded, setExpanded] = useState<string[]>([]);
+  const [strainStats, setStrainStats] = useState<{ name: string; count: number }[]>([]);
 
   useEffect(() => {
     // Load stats
@@ -42,6 +51,15 @@ export default function Dashboard() {
         setTankGrid(grid);
         const activeRacks = new Set(grid.filter(t => t.active).map(t => t.tank_id.split("-")[0]));
         setExpanded(Array.from(activeRacks));
+        const counts: Record<string, number> = {};
+        grid
+          .filter((t) => t.active)
+          .forEach((t) => {
+            const name = t.strains?.name || "Unassigned";
+            counts[name] = (counts[name] || 0) + 1;
+          });
+        const stats = Object.entries(counts).map(([name, count]) => ({ name, count }));
+        setStrainStats(stats);
       });
   }, []);
 
@@ -61,11 +79,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-blue-50 px-6 py-8">
-
-            {/* ← THIS MUST BE INSIDE THE RETURN */}
-            <div className="bg-red-500 text-white p-4 mb-4">
-        🚩 If you see this red box, Tailwind is loading correctly!
-      </div>
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900">🐟 Zebrafish Tracker</h1>
@@ -128,6 +141,19 @@ export default function Dashboard() {
       {/* Total Active Tanks */}
       <div className="text-center text-xl font-medium text-gray-800 mb-6">
         🐠 Active Tanks: <span className="font-bold">{tankCount}</span>
+      </div>
+
+      {/* Active Tanks by Strain */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 max-w-6xl mx-auto">
+        <h2 className="text-lg font-semibold mb-2">Active Tanks by Strain</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={strainStats}>
+            <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" height={70} />
+            <YAxis allowDecimals={false} />
+            <Tooltip />
+            <Bar dataKey="count" fill="#3b82f6" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Rack Schematic */}
