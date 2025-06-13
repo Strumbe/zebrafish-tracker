@@ -190,8 +190,11 @@ export default function TankDetailPage() {
                 <input className="p-2 border rounded" type="number" placeholder="Female Count" value={female} onChange={(e) => setFemale(e.target.value)} />
                 <input className="p-2 border rounded" type="number" placeholder="Deceased Count" value={deceased} onChange={(e) => setDeceased(e.target.value)} />
               </div>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-4" onClick={handleSave}>
-                💾 Save & Log Counts
+              <button
+                className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 mt-4 mx-auto block"
+                onClick={handleSave}
+              >
+                Save
               </button>
             </div>
 
@@ -245,8 +248,11 @@ export default function TankDetailPage() {
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
           />
-          <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={handleAddNote}>
-            ➕ Add Note
+          <button
+            className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 mx-auto block"
+            onClick={handleAddNote}
+          >
+            Add Note
           </button>
           <ul className="mt-4 space-y-2 text-sm">
             {notes.map((note) => (
@@ -263,10 +269,10 @@ export default function TankDetailPage() {
         {/* Reuse Button - Always at Bottom */}
         <div className="text-center pt-4">
           <button
-            className="text-red-600 underline hover:text-red-800 px-4 py-2"
+            className="bg-gray-600 text-white px-6 py-3 rounded hover:bg-gray-700 mx-auto block"
             onClick={handleClearTank}
           >
-            🧼 Clear Tank for Reuse
+            Reuse
           </button>
         </div>
       </div>

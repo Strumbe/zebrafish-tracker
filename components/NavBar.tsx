@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function NavBar() {
   const router = useRouter();
@@ -10,7 +11,6 @@ export default function NavBar() {
     { title: "Breeding Log", path: "/breeding" },
     { title: "Users", path: "/users" },
     { title: "Tank Archive", path: "/tanks/archive" },
-
   ];
 
   return (
@@ -28,6 +28,16 @@ export default function NavBar() {
           {section.title}
         </button>
       ))}
+      <Link href="/login" legacyBehavior>
+        <a className="px-4 py-2 rounded bg-blue-100 text-blue-700 hover:bg-blue-200">
+          Login
+        </a>
+      </Link>
+      <Link href="/register" legacyBehavior>
+        <a className="px-4 py-2 rounded bg-blue-100 text-blue-700 hover:bg-blue-200">
+          Register
+        </a>
+      </Link>
     </nav>
   );
 }

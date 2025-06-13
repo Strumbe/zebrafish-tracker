@@ -2,14 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
-import {
-  Fish,
-  BookOpen,
-  FlaskConical,
-  Users,
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
+import { Fish, BookOpen, FlaskConical, Users, ChevronDown, ChevronRight } from "lucide-react";
 
 const RACKS = ["ARF1", "ARF2", "ARF3", "ARF4", "ARF5", "ARF6"];
 const ROWS = ["A", "B", "C", "D", "E", "F"];
@@ -23,7 +16,6 @@ export default function Dashboard() {
   const [userCount] = useState(4); // static
   const [tankGrid, setTankGrid] = useState([]);
   const [expanded, setExpanded] = useState<string[]>([]);
-  const [strainTankStats, setStrainTankStats] = useState<{name: string; count: number;}[]>([]);
 
   useEffect(() => {
     // Load stats
@@ -37,24 +29,12 @@ export default function Dashboard() {
     // Load grid & set expanded racks
     supabase
       .from("tanks")
-      .select("id, tank_id, active, total_fish, strain_id, strains(name, strain_id_number)")
+      .select("id, tank_id, active, total_fish, strain_id, strains:strain_id(name, strain_id_number)")
       .then(({ data }) => {
         const grid = data || [];
         setTankGrid(grid);
         const activeRacks = new Set(grid.filter(t => t.active).map(t => t.tank_id.split("-")[0]));
         setExpanded(Array.from(activeRacks));
-
-        const counts: Record<string, number> = {};
-        grid.forEach(t => {
-          if (t.active && t.strain_id) {
-            const name = t.strains?.name || "Unknown";
-            counts[name] = (counts[name] || 0) + 1;
-          }
-        });
-        const stats = Object.entries(counts)
-          .map(([name, count]) => ({ name, count }))
-          .sort((a, b) => b.count - a.count);
-        setStrainTankStats(stats);
       });
   }, []);
 
@@ -75,63 +55,73 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-blue-50 px-6 py-8">
 
-            {/* ← THIS MUST BE INSIDE THE RETURN */}
-            <div className="bg-red-500 text-white p-4 mb-4">
-        🚩 If you see this red box, Tailwind is loading correctly!
-      </div>
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">🐟 Zebrafish Tracker</h1>
-        <p className="text-gray-600 mt-2">
+      <div className="text-center mb-4">
+        <h1 className="text-3xl font-bold text-gray-900">🐟 Zebrafish Tracker</h1>
+        <p className="text-gray-600 mt-1">
           Welcome back! Here’s a quick look at your lab activity.
         </p>
       </div>
 
-      {/* Stat Cards */}
-      
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+      {/* Login/Register Buttons */}
+      <div className="flex justify-center mb-4">
+        <button
+          onClick={() => router.push('/login')}
+          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 mx-auto block"
+        >
+          Login
+        </button>
+        <button
+          onClick={() => router.push('/register')}
+          className="ml-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition mx-auto block"
+        >
+          Register
+        </button>
+      </div>
+
+      {/* Condensed Stat Cards */}
+      <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
         {[
-          
           {
             title: "Strains",
             count: strainCount,
             subtitle: "Total strains",
-            icon: <Fish className="w-6 h-6 text-blue-600" />,
+            icon: <Fish className="w-5 h-5 text-blue-600" />,
             path: "/strains",
           },
           {
             title: "Tanks",
             count: tankCount,
             subtitle: "Active tanks",
-            icon: <BookOpen className="w-6 h-6 text-blue-600" />,
+            icon: <BookOpen className="w-5 h-5 text-blue-600" />,
             path: "/tanks",
           },
           {
             title: "Breeding",
             count: breedingCount,
             subtitle: "Crosses logged",
-            icon: <FlaskConical className="w-6 h-6 text-blue-600" />,
+            icon: <FlaskConical className="w-5 h-5 text-blue-600" />,
             path: "/breeding",
           },
           {
             title: "Users",
             count: userCount,
             subtitle: "Active members",
-            icon: <Users className="w-6 h-6 text-blue-600" />,
+            icon: <Users className="w-5 h-5 text-blue-600" />,
             path: "/users",
           },
         ].map(card => (
           <div
             key={card.title}
             onClick={() => router.push(card.path)}
-            className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md cursor-pointer transition h-28 flex flex-col justify-between"
+            className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col justify-center items-center text-center hover:bg-blue-100"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-1 mb-2">
               {card.icon}
-              <h2 className="text-base font-semibold text-gray-800">{card.title}</h2>
+              <h2 className="text-sm font-semibold text-gray-800">{card.title}</h2>
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{card.count}</p>
+              <p className="text-lg font-bold text-gray-900">{card.count}</p>
               <p className="text-xs text-gray-500">{card.subtitle}</p>
             </div>
           </div>
@@ -139,24 +129,9 @@ export default function Dashboard() {
       </div>
 
       {/* Total Active Tanks */}
-      <div className="text-center text-xl font-medium text-gray-800 mb-6">
+      <div className="text-center text-lg font-medium text-gray-800 mb-4">
         🐠 Active Tanks: <span className="font-bold">{tankCount}</span>
       </div>
-
-      {/* Tanks by Strain */}
-      {strainTankStats.length > 0 && (
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow mb-6 p-4">
-          <h2 className="text-lg font-semibold mb-3">Tanks by Strain</h2>
-          <ul className="space-y-1 text-sm">
-            {strainTankStats.map((s) => (
-              <li key={s.name} className="flex justify-between">
-                <span>{s.name}</span>
-                <span className="font-bold">{s.count}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {/* Rack Schematic */}
       <div className="max-w-6xl mx-auto space-y-6">
