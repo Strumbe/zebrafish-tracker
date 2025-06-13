@@ -4,16 +4,11 @@ This repository contains a Next.js project.
 
 ## Remote Repository Setup
 
-This environment does not have a remote Git repository configured. If you want to
-push your changes to a remote (e.g., GitHub), first add a remote:
+This project does not include a Git remote by default. To push your changes to
+GitHub, first add your repository as a remote and then push:
 
 ```bash
 git remote add origin <your-repo-url>
-```
-
-Then push the main branch (or whichever branch you are using):
-
-```bash
 git push -u origin main
 ```
 
@@ -28,9 +23,12 @@ npm install
 npm run dev
 ```
 
-## Note on This Environment
+The server listens on port `3000`. On the machine running the command you can
+visit `http://localhost:3000`. If you need to access it from another machine on
+the same network, replace `localhost` with the host computer's IP address.
 
-The Codex environment used to generate this project has no internet access,
-so remote commands like `git push` will fail here. Perform these steps on your
-own machine with internet connectivity.
+## Environment
+
+This workspace has internet access. As long as you configure your Git remote
+and credentials, commands like `git push` or `npm install` will work normally.
 
