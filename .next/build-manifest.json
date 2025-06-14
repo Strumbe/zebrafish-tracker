@@ -28,25 +28,20 @@
       "static/chunks/main.js",
       "static/chunks/pages/breeding.js"
     ],
-    "/dashboard": [
+    "/tanks": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard.js"
-    ],
-    "/login": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/login.js"
-    ],
-    "/tanks/[id]": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/tanks/[id].js"
+      "static/chunks/pages/tanks.js"
     ],
     "/tanks/archive": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/tanks/archive.js"
+    ],
+    "/users": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/users.js"
     ]
   },
   "ampFirstPages": []

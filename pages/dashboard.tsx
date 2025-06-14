@@ -53,92 +53,90 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50 px-6 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-blue-200 via-blue-100 to-blue-50 px-6 py-8">
 
       {/* Header */}
-      <div className="text-center mb-4">
-        <h1 className="text-3xl font-bold text-gray-900">🐟 Zebrafish Tracker</h1>
-        <p className="text-gray-600 mt-1">
+      <div className="text-center mb-8">
+        <h1 className="text-5xl font-extrabold text-gray-900">🐟 Zebrafish Tracker</h1>
+        <p className="text-gray-700 mt-3 text-lg">
           Welcome back! Here’s a quick look at your lab activity.
         </p>
       </div>
 
-      {/* Login/Register Buttons */}
-      <div className="flex justify-center mb-4">
-        <button
-          onClick={() => router.push('/login')}
-          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 mx-auto block"
-        >
-          Login
-        </button>
-        <button
-          onClick={() => router.push('/register')}
-          className="ml-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition mx-auto block"
-        >
-          Register
-        </button>
+      {/* Navigation Bar */}
+      <div className="flex justify-between items-center mb-6 px-4 py-2 bg-white shadow-md rounded-lg">
+        <div className="text-xl font-semibold text-gray-800">Dashboard</div>
+        <div className="flex space-x-4">
+          <button
+            onClick={() => router.push('/login')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-transform transform hover:scale-105"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => router.push('/register')}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition-transform transform hover:scale-105"
+          >
+            Register
+          </button>
+        </div>
       </div>
 
-      {/* Condensed Stat Cards */}
-      <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+      {/* Stat Cards */}
+      <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
         {[
           {
             title: "Strains",
             count: strainCount,
             subtitle: "Total strains",
-            icon: <Fish className="w-5 h-5 text-blue-600" />,
+            icon: <Fish className="w-8 h-8 text-blue-600" />,
             path: "/strains",
           },
           {
             title: "Tanks",
             count: tankCount,
             subtitle: "Active tanks",
-            icon: <BookOpen className="w-5 h-5 text-blue-600" />,
+            icon: <BookOpen className="w-8 h-8 text-blue-600" />,
             path: "/tanks",
           },
           {
             title: "Breeding",
             count: breedingCount,
             subtitle: "Crosses logged",
-            icon: <FlaskConical className="w-5 h-5 text-blue-600" />,
+            icon: <FlaskConical className="w-8 h-8 text-blue-600" />,
             path: "/breeding",
           },
           {
             title: "Users",
             count: userCount,
             subtitle: "Active members",
-            icon: <Users className="w-5 h-5 text-blue-600" />,
+            icon: <Users className="w-8 h-8 text-blue-600" />,
             path: "/users",
           },
         ].map(card => (
           <div
             key={card.title}
             onClick={() => router.push(card.path)}
-            className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col justify-center items-center text-center hover:bg-blue-100"
+            className="bg-gradient-to-r from-white to-blue-50 rounded-lg border border-gray-200 p-6 shadow-lg hover:shadow-xl cursor-pointer transition-transform transform hover:scale-105 flex flex-col justify-center items-center text-center"
           >
-            <div className="flex items-center justify-center gap-1 mb-2">
+            <div className="flex items-center justify-center gap-3 mb-3">
               {card.icon}
-              <h2 className="text-sm font-semibold text-gray-800">{card.title}</h2>
+              <h2 className="text-lg font-semibold text-gray-800">{card.title}</h2>
             </div>
             <div>
-              <p className="text-lg font-bold text-gray-900">{card.count}</p>
-              <p className="text-xs text-gray-500">{card.subtitle}</p>
+              <p className="text-2xl font-bold text-gray-900">{card.count}</p>
+              <p className="text-sm text-gray-500">{card.subtitle}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Total Active Tanks */}
-      <div className="text-center text-lg font-medium text-gray-800 mb-4">
-        🐠 Active Tanks: <span className="font-bold">{tankCount}</span>
-      </div>
-
       {/* Rack Schematic */}
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-8">
         {RACKS.map(rack => (
-          <div key={rack} className="bg-white rounded-lg shadow-sm">
+          <div key={rack} className="bg-white rounded-lg shadow-lg">
             <button
-              className="w-full flex items-center justify-between px-5 py-3 text-lg font-semibold text-gray-800 hover:bg-gray-50 transition"
+              className="w-full flex items-center justify-between px-6 py-4 text-lg font-semibold text-gray-800 hover:bg-gray-100 transition"
               onClick={() => toggle(rack)}
             >
               <span>{rack}</span>
@@ -149,16 +147,16 @@ export default function Dashboard() {
                 <table className="table-fixed border-collapse w-full">
                   <tbody>
                     {ROWS.map(row => (
-                      <tr key={row}>
+                      <tr key={row} className="odd:bg-gray-50 even:bg-white">
                         {COLUMNS.map(col => {
                           const tank = getTank(rack, row, col);
                           return (
                             <td
                               key={`${rack}-${row}-${col}`}
-                              className={`p-2 text-xs text-center border ${borderClass(tank)} cursor-pointer hover:bg-gray-50`}
+                              className={`p-4 text-xs text-center border ${borderClass(tank)} cursor-pointer hover:bg-blue-100 transition-transform transform hover:scale-105`}
                               onClick={() => tank && router.push(`/tanks/${tank.id}`)}
                             >
-                              <div className="font-medium">{`${rack}-${row}-${col}`}</div>
+                              <div className="font-medium text-gray-800">{`${rack}-${row}-${col}`}</div>
                               <div className="text-gray-600 truncate">{tank?.strains?.name || "—"}</div>
                               <div className="text-gray-400 text-[10px]">{tank?.strains?.strain_id_number || "—"}</div>
                             </td>
