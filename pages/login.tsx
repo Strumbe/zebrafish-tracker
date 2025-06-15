@@ -5,14 +5,43 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signIn({ email, password });
-    if (error) {
-      setError(error.message);
-    } else {
-      alert('Login successful!');
+    setError(null);
+    setLoading(true);
+    let timeoutId;
+    try {
+      timeoutId = setTimeout(() => {
+        setLoading(false);
+        setError('Login timed out. Please try again.');
+      }, 15000); // 15 seconds timeout
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      clearTimeout(timeoutId);
+      const user = data?.user;
+      if (error) {
+        setError(error.message);
+      } else if (user) {
+        // Fetch user data from the custom users table
+        const { data: userData, error: userTableError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('auth_id', user.id)
+          .single();
+        if (userTableError || !userData) {
+          setError('No user profile found. Please register or contact support.');
+        } else {
+          // Redirect to user profile or dashboard
+          window.location.href = `/users/${user.id}`;
+        }
+      } else {
+        setError('Login failed. Please check your credentials.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,11 +64,13 @@ const Login = () => {
         <button
           className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 mx-auto block"
           type="submit"
+          disabled={loading}
         >
-          Login
+          {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
-      {error && <p>{error}</p>}
+      {loading && <p>Logging in, please wait...</p>}
+      {error && <p className="text-red-600">{error}</p>}
     </div>
   );
 };

@@ -10,10 +10,19 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
       setError(error.message);
     } else {
+      const user = data.user; // Access user from the data property
+      // Insert user data into the custom users table
+      await supabase.from('users').insert([
+        {
+          auth_id: user.id,
+          email: user.email,
+          username: user.email.split('@')[0], // Default username
+        },
+      ]);
       alert("Registration successful!");
       router.push(`/users/${user.id}`); // Redirect to user profile
     }

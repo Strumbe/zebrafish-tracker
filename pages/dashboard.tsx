@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabase";
 import { Fish, BookOpen, FlaskConical, Users, ChevronDown, ChevronRight } from "lucide-react";
+import NavBar from "../components/NavBar";
 
 const RACKS = ["ARF1", "ARF2", "ARF3", "ARF4", "ARF5", "ARF6"];
 const ROWS = ["A", "B", "C", "D", "E", "F"];
@@ -16,6 +17,7 @@ export default function Dashboard() {
   const [userCount] = useState(4); // static
   const [tankGrid, setTankGrid] = useState([]);
   const [expanded, setExpanded] = useState<string[]>([]);
+  const [userInfo, setUserInfo] = useState<{ username: string; email: string } | null>(null);
 
   useEffect(() => {
     // Load stats
@@ -36,6 +38,19 @@ export default function Dashboard() {
         const activeRacks = new Set(grid.filter(t => t.active).map(t => t.tank_id.split("-")[0]));
         setExpanded(Array.from(activeRacks));
       });
+
+    const fetchUserInfo = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("users")
+          .select("username, email")
+          .eq("auth_id", user.id)
+          .single();
+        if (data) setUserInfo(data);
+      }
+    };
+    fetchUserInfo();
   }, []);
 
   const toggle = (r: string) =>
@@ -54,6 +69,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-200 via-blue-100 to-blue-50 px-6 py-8">
+      <NavBar />
+      {userInfo && (
+        <div className="mb-4 text-right text-sm text-blue-800 bg-blue-50 px-4 py-2 rounded">
+          Signed in as <span className="font-semibold">{userInfo.username}</span> (<span className="font-mono">{userInfo.email}</span>)
+        </div>
+      )}
 
       {/* Header */}
       <div className="text-center mb-8">

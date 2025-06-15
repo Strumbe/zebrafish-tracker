@@ -99,7 +99,24 @@ export default function TankDetailPage() {
 
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
-    await supabase.from("tank_notes").insert([{ tank_id: id, note: newNote }]);
+    // Get current user info
+    const { data: { user } } = await supabase.auth.getUser();
+    let username = null;
+    if (user) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('username')
+        .eq('auth_id', user.id)
+        .single();
+      username = userData?.username || null;
+    }
+    await supabase.from("tank_notes").insert([
+      {
+        tank_id: id,
+        note: newNote,
+        username: username,
+      },
+    ]);
     setNewNote("");
     fetchNotes();
   };
@@ -108,9 +125,26 @@ export default function TankDetailPage() {
     const confirm = window.confirm("Are you sure you want to clear and reset this tank for reuse?");
     if (!confirm || !tank) return;
 
-    await supabase.from("tank_archive").insert([
+    // Get current user info
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id || null;
+    const userEmail = user?.email || null;
+
+    // Fetch all logs and notes for this tank
+    const { data: logs = [] } = await supabase
+      .from("tank_logs")
+      .select("*")
+      .eq("tank_id", tank.id);
+    const { data: notes = [] } = await supabase
+      .from("tank_notes")
+      .select("*")
+      .eq("tank_id", tank.id);
+
+    // Archive tank snapshot (add who archived)
+    const { data: archiveEntry, error: archiveError } = await supabase.from("tank_archive").insert([
       {
         tank_id: tank.id,
+        tank_label: tank.tank_id,
         strain_id: tank.strain_id,
         total_fish: tank.total_fish,
         larval_count: tank.larval_count,
@@ -118,10 +152,30 @@ export default function TankDetailPage() {
         female_count: tank.female_count,
         deceased_count: tank.deceased_count,
         notes: tank.notes || null,
+        archived_by: userId,
+        archived_by_email: userEmail,
+        archived_at: new Date().toISOString(),
       },
-    ]);
+    ]).select().single();
 
-    // remove existing notes and logs so tank starts fresh
+    if (archiveError || !archiveEntry) {
+      alert("Failed to archive tank snapshot.");
+      return;
+    }
+
+    // Archive logs and notes with reference to archive id
+    if (logs.length > 0) {
+      await supabase.from("tank_archive_logs").insert(
+        logs.map((log) => ({ ...log, archive_id: archiveEntry.id }))
+      );
+    }
+    if (notes.length > 0) {
+      await supabase.from("tank_archive_notes").insert(
+        notes.map((note) => ({ ...note, archive_id: archiveEntry.id }))
+      );
+    }
+
+    // Remove existing notes and logs so tank starts fresh
     await supabase.from("tank_notes").delete().eq("tank_id", tank.id);
     await supabase.from("tank_logs").delete().eq("tank_id", tank.id);
 
@@ -145,6 +199,7 @@ export default function TankDetailPage() {
     fetchTankData();
     fetchNotes();
     fetchLogHistory();
+    alert("Tank archived and cleared. You can view the snapshot in the archive.");
   };
 
   if (loading || !tank) {
@@ -258,9 +313,14 @@ export default function TankDetailPage() {
             {notes.map((note) => (
               <li key={note.id} className="border rounded p-2 bg-gray-50">
                 <p className="text-gray-700">{note.note}</p>
-                <p className="text-gray-400 text-xs mt-1">
-                  {new Date(note.timestamp).toLocaleString()}
-                </p>
+                <div className="flex justify-between items-center mt-1">
+                  <span className="text-gray-400 text-xs">
+                    {new Date(note.timestamp).toLocaleString()}
+                  </span>
+                  {note.username && (
+                    <span className="text-blue-700 text-xs ml-2">{note.username}</span>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

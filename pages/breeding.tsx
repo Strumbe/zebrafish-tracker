@@ -46,11 +46,26 @@ export default function BreedingLogPage() {
       await supabase.from("breeding_logs").update(payload).eq("id", editingId);
       setEditingId(null);
     } else {
-      await supabase.from("breeding_logs").insert([payload]);
+      await handleCreateLog();
     }
 
     resetForm();
     fetchLogs();
+  };
+
+  const handleCreateLog = async () => {
+    const user = supabase.auth.user();
+    await supabase.from("breeding_logs").insert([
+      {
+        strain,
+        strain_id: strainId,
+        dob,
+        num_fish: numFish,
+        tank_id: tankId,
+        comments,
+        user_id: user.id, // Track the user who created the log
+      },
+    ]);
   };
 
   const resetForm = () => {
